@@ -7,6 +7,8 @@ data_a = "process3.txt"
 data_for = "process4.txt"
 
 
+
+
 class Process:
     def __init__(self, number:int, arrival:int, burst_time:int, priority:int, start_time:int, end_time:int):
         self.number = number
@@ -202,10 +204,11 @@ def SRPT(fname):
     process = sortthis(process, 'arv')
     time = -1
     avg1 = avg2 = 0
-
+    skip = 0
 
     for x in process:
         time+=1
+        skip = 0
         if len(tasks) == 0: 
             for_ghant.append(Process(x.number, x.arrival, x.burst_time, x.priority, time, 0)) 
             
@@ -215,11 +218,20 @@ def SRPT(fname):
         tasks.append(Process(x.number, x.arrival, x.burst_time, x.priority, time, 0))
         tasks = sortthis(tasks, 'burst')
 
-        #print(str(for_ghant[(len(for_ghant))-1].number) + "||" + str(tasks[0].number))
-        if for_ghant[(len(for_ghant))-1].number != tasks[0].number:
-            for_ghant[(len(for_ghant))-1].end_time = time
-            #print("here" + str(time))
-            for_ghant.append(Process(x.number, x.arrival, x.burst_time, x.priority, time, 0))
+        if tasks[0].burst_time == 0:
+            del tasks[0]
+            if for_ghant[(len(for_ghant))-1].number != tasks[0].number:
+                for_ghant[(len(for_ghant))-1].end_time = time
+                print("here" + str(time))
+                for_ghant.append(Process(tasks[0].number, tasks[0].arrival, tasks[0].burst_time, tasks[0].priority, time, 0))
+                skip = 1
+
+        if skip == 0:
+            print(str(for_ghant[(len(for_ghant))-1].number) + "||" + str(tasks[0].number))
+            if for_ghant[(len(for_ghant))-1].number != tasks[0].number:
+                for_ghant[(len(for_ghant))-1].end_time = time
+                print("here" + str(time))
+                for_ghant.append(Process(x.number, x.arrival, x.burst_time, x.priority, time, 0))
 
         print("testing attention please -> t" + str(time))
         print("task1")
@@ -239,10 +251,11 @@ def SRPT(fname):
     del tasks[0]
     
     for x in tasks:
-        for_ghant.append(x)
-        for_ghant[(len(for_ghant))-1].start_time = time
-        time = time + x.burst_time
-        for_ghant[(len(for_ghant))-1].end_time = time
+        if x.burst_time != 0:
+            for_ghant.append(x)
+            for_ghant[(len(for_ghant))-1].start_time = time
+            time = time + x.burst_time
+            for_ghant[(len(for_ghant))-1].end_time = time
 
     for x in process:
         yes = 0
@@ -272,6 +285,8 @@ def SRPT(fname):
     print("\n")
     print("The average waiting time is " + str(avg1/len(process)))
     print("The average turnaround time is " + str(avg2/len(process)))
+
+    
     
 
 def Priority(fname):
@@ -305,7 +320,7 @@ def RoundRobin(fname):
     process =  Load_Data(fname)
     for_ghant = []
     time = avg1 = avg2 = total_time = 0
-    time_slice = 4
+    time_slice = 2
 
     for x in process:
         total_time+=x.burst_time
@@ -324,6 +339,8 @@ def RoundRobin(fname):
                     x.burst_time-=x.burst_time
                 for_ghant[len(for_ghant)-1].end_time = time
 
+    current = -1
+    before = -1
     for x in process:
         yes = 0
         for y in reversed(for_ghant):
@@ -335,6 +352,7 @@ def RoundRobin(fname):
                 else:
                     subtract = y.start_time - y.end_time
                     x.start_time+=subtract
+            before = current
 
     print("Round Robin")
 
@@ -357,19 +375,19 @@ def main():
     show_data(File_name)
     pause()
 
-    #FCFS(File_name)
-    #pause()
+    FCFS(File_name)
+    pause()
 
-    #SJF(File_name)
-    #pause()
+    SJF(File_name)
+    pause()
 
     SRPT(File_name)
     pause()
 
-    #Priority(File_name)
-    #pause()
+    Priority(File_name)
+    pause()
 
-    #RoundRobin(File_name)
-    #pause()
+    RoundRobin(File_name)
+    pause()
 main()
     
